@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>intercorp</groupId>
+    <artifactId>JavaCIDemoIntercorp</artifactId>
+    <version>1.0.0</version>
+    <name>JavaCIDemoIntercorp</name>
+    <url>http://maven.apache.org</url>
+    <packaging>jar</packaging>
+
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.1.3.RELEASE</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+
+        <!-- swagger2 RestApi -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+        <!-- RESTFul API -->
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-mockmvc</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-staticdocs</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+           
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                
+                <executions>
+                    <execution>
+                        <configuration>
+                            <mainClass>com.stark.Application</mainClass>
+                        </configuration>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+    
+            </plugin>
+            <!--maven-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Documentation.java</include>
+                    </includes>
+                    <skipTests>false</skipTests><!--maven -Dmaven.test.skip=true-->
+                    <testFailureIgnore>true</testFailureIgnore><!-- -Dmaven.test.failure.ignore=true-->
+                </configuration>
+            </plugin>
+            <!-- Docker
+            -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                    <artifactId>dockerfile-maven-plugin</artifactId>
+                    <version>1.4.3</version>
+                    <executions>
+                        <execution>
+                            <id>tag-latest</id>
+                            <goals>
+                                <goal>build</goal>
+                                <goal>tag</goal>
+                                <goal>push</goal>
+                            </goals>
+                            <configuration>
+                                <tag>latest</tag>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>tag-version</id>
+                            <goals>
+                                <goal>build</goal>
+                                <goal>tag</goal>
+                                <goal>push</goal>
+                            </goals>
+                            <configuration>
+                                <tag>${project.version}</tag>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <username>anatolyalexei</username>
+                        <password>be3e14df-c305-4cd0-8575-79645372cbd3</password>
+                        <repository>docker.io/anatolyalexei/r6g3sys</repository>
+                        <tag>${project.version}</tag>
+                    </configuration>
+            </plugin>
+            <!-- xml txt
+                mvn surefire-report:report 
+                position：
+                    target/site/surefire-report.html
+                    target/surefire-reports/
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>3.0.0-M3</version>
+            </plugin>
+            <!-- Code Coverage
+             command ：mvn cobertura:cobertura -Pmetrics?
+             position ：target/site/cobertura
+             -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                    <check/>
+                </configuration>
+            </plugin>
+
+            <!-- Detección de especificación de código estático
+                 command : checkstyle:checkstyle
+                 position: target/site/checkstyle.html
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <configLocation>src/main/resources/checkstyle.xml</configLocation>
+                </configuration>
+            </plugin>
+
+            <!-- Detección de defectos de código estático
+                 command : compile findbugs:findbugs
+                           compile findbugs:gui Salida de interfaz
+                 position: target/findbugsXml.xml
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.5</version>
+                <configuration>
+                    <!-- Establecer el nivel de trabajo de análisis，Min、Default Max -->
+                    <effort>Low</effort>
+                    <!-- Low Medium High -->
+                    <threshold>Medium</threshold>
+                    <failOnError>true</failOnError>
+                    <includeTests>true</includeTests>
+                    <!--findbugs-->
+                    <excludeFilterFile>src/main/resources/findbugs-exclude-filter.xml</excludeFilterFile>
+                </configuration>
+                <!-- maven  lifecycle-->
+                <executions>
+                    <execution>
+                        <id>run-findbugs</id>
+                        <!-- compile findbugs mvn clean compile -->
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- PMD Static code checking tool
+                command : pmd:pmd
+                 position: target/pmd.xml
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.8</version>
+                <configuration>
+                    <printFailingErrors>true</printFailingErrors>
+                    <!-- pmd RULES -->
+                    <rulesets>
+                        <ruleset>rulesets/java/ali-comment.xml</ruleset>
+                        <ruleset>rulesets/java/ali-concurrent.xml</ruleset>
+                        <ruleset>rulesets/java/ali-constant.xml</ruleset>
+                        <ruleset>rulesets/java/ali-exception.xml</ruleset>
+                        <ruleset>rulesets/java/ali-flowcontrol.xml</ruleset>
+                        <ruleset>rulesets/java/ali-naming.xml</ruleset>
+                        <ruleset>rulesets/java/ali-oop.xml</ruleset>
+                        <ruleset>rulesets/java/ali-orm.xml</ruleset>
+                        <ruleset>rulesets/java/ali-other.xml</ruleset>
+                        <ruleset>rulesets/java/ali-set.xml</ruleset>
+                    </rulesets>
+                </configuration>
+                <executions>
+                    <!-- maven LIFECYCLE -->
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <!-- p3c pmC -->
+                    <dependency>
+                        <groupId>com.alibaba.p3c</groupId>
+                        <artifactId>p3c-pmd</artifactId>
+                        <version>1.3.6</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!-- JavaDoc 
+                command : javadoc:javadoc
+                 position: target/site/apidocs/index.html
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                </configuration>
+            </plugin>
+            <!--  -->
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.3</version>
+
+                <!-- Configure generic document generation settings -->
+                <configuration>
+                    <sourceDirectory>${project.basedir}/docs/asciidoc</sourceDirectory>
+                    <sourceDocumentName>index.adoc</sourceDocumentName>
+                    <attributes>
+                        <doctype>book</doctype>
+                        <toc>left</toc>
+                        <toclevels>3</toclevels>
+                        <numbered></numbered>
+                        <hardbreaks></hardbreaks>
+                        <sectlinks></sectlinks>
+                        <sectanchors></sectanchors>
+                        <generated>${project.build.directory}/asciidoc</generated>
+                    </attributes>
+                </configuration>
+                <!-- Since each execution can only handle one backend, run
+                     separate executions for each desired output type -->
+                <executions>
+                    <execution>
+                        <id>output-html</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html5</backend>
+                            <!--<outputDirectory>${project.basedir}/docs/asciidoc/html</outputDirectory>-->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
